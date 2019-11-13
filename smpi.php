@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       SocialMedia Photo Importer
  * Plugin URI:        https://aguspri.com/smpi
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Description:       Plugin to fetch one or more images that stored on your social media like Instagram, Facebook,etc. Note: Currently this plugin only available for Instagram account.
  * Version:           1.0.0
  * Author:            Agus Priyanto
  * Author URI:        https://aguspri.com
@@ -31,11 +31,11 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
- * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
- * Rename this for your plugin and update it as you release new versions.
+ * Constants
  */
 define( 'SMPI_VERSION', '1.0.0' );
+define( 'SMPI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'SMPI_LIB_DIR', SMPI_PLUGIN_DIR . 'lib/' );
 
 /**
  * The code that runs during plugin activation.

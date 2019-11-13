@@ -100,4 +100,12 @@ class Smpi_Admin {
 
 	}
 
+	/**
+	 * Just for testing
+	 */
+	public function test_admin() {
+		include 'partials/smpi-admin-display.php';
+		exit;
+	}
+
 }

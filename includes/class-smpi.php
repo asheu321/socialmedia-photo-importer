@@ -157,6 +157,9 @@ class Smpi {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+		// This hooks is just for debuging & testing purpose, we will delete it later
+		//$this->loader->add_action( 'admin_init', $plugin_admin, 'test_admin' );
+
 	}
 
 	/**

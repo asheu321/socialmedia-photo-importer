@@ -11,6 +11,24 @@
  * @package    Smpi
  * @subpackage Smpi/admin/partials
  */
-?>
 
-<!-- This file should primarily consist of HTML with a little bit of PHP. -->
+require_once SMPI_LIB_DIR . 'InstagramMediaScraper/vendor/autoload.php';
+
+require_once SMPI_LIB_DIR . 'InstagramMediaScraper/InstagramScraper.php';
+
+$instagram = new \InstagramScraper\Instagram();
+$medias = $instagram->getPaginateMedias('nike');
+
+foreach ( $medias['medias'] as $media ) {
+    echo '<img style="max-width:150px;"  src="' . $media->getImageThumbnailUrl() . '">';
+}
+
+echo "HasNextPage: {$medias['hasNextPage']}" . PHP_EOL;
+echo "MaxId: {$medias['maxId']}" . PHP_EOL;
+
+if ($medias['hasNextPage'] === true) {
+    $result = $instagram->getPaginateMedias('kevin', $medias['maxId']);
+    foreach ( $result['medias'] as $result ) {
+        echo '<img style="max-width:150px;"  src="' . $result->getImageThumbnailUrl() . '">';
+    }
+}
