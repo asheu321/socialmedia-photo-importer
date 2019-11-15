@@ -35,6 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  */
 define( 'SMPI_VERSION', '1.0.0' );
 define( 'SMPI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'SMPI_PLUGIN_URL', plugins_url( '', __FILE__ ) );
 define( 'SMPI_LIB_DIR', SMPI_PLUGIN_DIR . 'lib/' );
 
 /**

@@ -101,6 +101,21 @@ class Smpi_Admin {
 	}
 
 	/**
+	 * Override WP Media
+	 */
+	public function wp_media_override() {
+		
+		add_action( 'admin_print_footer_scripts', array( $this, 'override_media_templates'), 11 );
+	}
+
+	/**
+	 * Override WP Media template
+	 */
+	public function override_media_templates() {
+		include 'partials/smpi-media-template.php';
+	}
+
+	/**
 	 * Just for testing
 	 */
 	public function test_admin() {
