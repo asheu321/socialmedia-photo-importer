@@ -8,7 +8,7 @@ InstagramBrowser = wp.media.View.extend({
     tagName:   'div',
     className: 'instagram-browser',
     render: function() {
-        $(this.el).html(wp.template('instagram'));
+        jQuery(this.el).html(wp.template('instagram'));
         return this;
     }
 });
