@@ -10,6 +10,25 @@ InstagramBrowser = wp.media.View.extend({
     render: function() {
         jQuery(this.el).html(wp.template('instagram'));
         return this;
+    },
+    events: {
+        "submit #req-instagram":"SubmitForm"
+    },
+    SubmitForm: function(event) {
+        event.preventDefault();
+        //console.log(jQuery('#req-instagram input[type="text"]').val());
+        jQuery.ajax({
+            type: "post",
+            url: SMPIAdminJs.ajaxUrl,
+            data: {
+                action: 'instagram_submit_form',
+                username: jQuery('#req-instagram input[type="text"]').val()
+            },
+            dataType: "json",
+            success: function (response) {
+                console.log(response);
+            }
+        });
     }
 });
 
@@ -58,3 +77,4 @@ wp.media.view.MediaFrame.Select = wp.media.view.MediaFrame.Select.extend({
     }
     
 });
+

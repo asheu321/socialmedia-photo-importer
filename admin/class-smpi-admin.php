@@ -97,6 +97,9 @@ class Smpi_Admin {
 		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/smpi-admin.js', array( 'jquery' ), $this->version, false );
+		wp_localize_script( $this->plugin_name, 'SMPIAdminJs', array(
+			'ajaxUrl' => admin_url('admin-ajax.php')
+		));
 
 	}
 
@@ -113,6 +116,15 @@ class Smpi_Admin {
 	 */
 	public function override_media_templates() {
 		include 'partials/smpi-media-template.php';
+	}
+
+	/**
+	 * Instagran: Ajax submit form callback
+	 */
+	public function instagram_submit_form() {
+		$username = $_POST['username'];
+		echo json_encode( array( 'status' => '200', 'username' => $username ) );
+		exit;
 	}
 
 	/**
