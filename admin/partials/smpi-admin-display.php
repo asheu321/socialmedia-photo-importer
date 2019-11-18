@@ -16,14 +16,23 @@ require_once SMPI_LIB_DIR . 'InstagramMediaScraper/vendor/autoload.php';
 
 require_once SMPI_LIB_DIR . 'InstagramMediaScraper/InstagramScraper.php';
 
-$instagram = new \InstagramScraper\Instagram();
-$medias = $instagram->getPaginateMedias('nike');
+use InstagramScraper\Exception\InstagramException;
+use InstagramScraper\Exception\InstagramNotFoundException;
 
-foreach ( $medias['medias'] as $media ) {
-    echo '<img style="max-width:150px;"  src="' . $media->getImageThumbnailUrl() . '">';
+
+$instagram = new \InstagramScraper\Instagram();
+
+try {
+    $medias = $instagram->getMedias('Kholid Basalamah');
+
+    foreach ( $medias['medias'] as $media ) {
+        echo '<img style="max-width:150px;"  src="' . $media->getImageThumbnailUrl() . '">';
+    }
+} catch (InstagramScraper\Exception\InstagramNotFoundException $e) {
+    echo $e->getMessage();
 }
 
-echo "HasNextPage: {$medias['hasNextPage']}" . PHP_EOL;
+/*echo "HasNextPage: {$medias['hasNextPage']}" . PHP_EOL;
 echo "MaxId: {$medias['maxId']}" . PHP_EOL;
 
 if ($medias['hasNextPage'] === true) {
@@ -31,4 +40,4 @@ if ($medias['hasNextPage'] === true) {
     foreach ( $result['medias'] as $result ) {
         echo '<img style="max-width:150px;"  src="' . $result->getImageThumbnailUrl() . '">';
     }
-}
+}*/

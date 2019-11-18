@@ -16,17 +16,36 @@ InstagramBrowser = wp.media.View.extend({
     },
     SubmitForm: function(event) {
         event.preventDefault();
-        //console.log(jQuery('#req-instagram input[type="text"]').val());
+        jQuery('.smpi-small-loading').fadeIn();
+
         jQuery.ajax({
             type: "post",
             url: SMPIAdminJs.ajaxUrl,
             data: {
                 action: 'instagram_submit_form',
-                username: jQuery('#req-instagram input[type="text"]').val()
+                username: jQuery('#req-instagram input[type="text"]').val(),
+                has_next: false,
+                max_id: false
             },
             dataType: "json",
             success: function (response) {
-                console.log(response);
+                jQuery('.smpi-small-loading').fadeOut();
+                jQuery('.smpi-media-content').html('');
+                var status = response.status;
+                var message = response.message;
+                var images = response.images;
+                if ( status == 'success' ) {
+                    if ( response.count !== 0 ) {
+                        jQuery.each(response.images, function (i, a) { 
+                            jQuery('.smpi-media-content').append('<img style="max-width:150px" src="'+a+'">');
+                        });
+                    } else {
+                        jQuery('.smpi-media-content').html('No images found for <strong>' + response.username + '</strong> account.');
+                    }
+                } else {
+                    jQuery('.smpi-media-content').html(response.message);
+                }
+                
             }
         });
     }

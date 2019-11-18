@@ -122,8 +122,55 @@ class Smpi_Admin {
 	 * Instagran: Ajax submit form callback
 	 */
 	public function instagram_submit_form() {
-		$username = $_POST['username'];
-		echo json_encode( array( 'status' => '200', 'username' => $username ) );
+		$username 	= $_POST['username'];
+		$has_next 	= $_POST['has_next'];
+		$max_id 	= $_POST['max_id'];
+		/*$username 	= strtolower($username);
+		$user 		= explode( ' ', $username );
+		if ( count($user) >= 2 ) {
+			$username = implode( '', $user );
+		}*/
+
+		require_once SMPI_LIB_DIR . 'InstagramMediaScraper/vendor/autoload.php';
+
+		require_once SMPI_LIB_DIR . 'InstagramMediaScraper/InstagramScraper.php';
+
+		$instagram = new \InstagramScraper\Instagram();
+
+		if ($has_next == 'true') {
+
+			try {
+				$medias = $instagram->getPaginateMedias($username, $max_id);
+				$not_found = false;
+			} catch (InstagramScraper\Exception\InstagramNotFoundException $e) {
+				$not_found = $e->getMessage();
+			}
+			
+		} else {
+
+			try {
+				$medias = $instagram->getPaginateMedias($username);
+				$not_found = false;
+			} catch (InstagramScraper\Exception\InstagramNotFoundException $e) {
+				$not_found = $e->getMessage();
+			}
+
+		}
+
+		if ( $not_found ) {
+			echo json_encode( array( 'status' => 'error', 'message' => $not_found, 'username' => $username, 'count' => 0, 'images' => [], 'has_next' => false, 'max_id' => false ) );
+			exit;
+		}
+
+		$images = [];
+		foreach ( $medias['medias'] as $media ) {
+			$images[] = $media->getImageThumbnailUrl();
+		}
+
+		$has_next = $medias['hasNextPage'];
+		$max_id = $medias['maxId'];
+		
+		echo json_encode( array( 'status' => 'success', 'message' => 'All good!', 'username' => $username, 'count' => count($images), 'images' => $images, 'has_next' => $has_next, 'max_id' => $max_id ) );
 		exit;
 	}
 
