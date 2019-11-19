@@ -104,10 +104,41 @@ class Smpi_Admin {
 	}
 
 	/**
+	 * Add Submenu Link
+	 */
+	public function admin_menu() {
+		add_submenu_page('options-general.php', 'Social Media Photo Importer', 'Social Media Photo Importer', 'manage_options', 'smpi_settings', array($this, 'smpi_admin_page'));
+	}
+
+	/**
+	 * Admin settings page
+	 */
+	public function smpi_admin_page() {
+		include 'partials/smpi-admin-settings.php';
+	}
+
+	/**
+	 * Save instagram username / Ajax Callback
+	 */
+	public function save_instagram_username() {
+		parse_str( $_POST['data'], $var );
+		$username = isset($var['instagram-username']) && $var['instagram-username'] != '' ? $var['instagram-username'] : false;
+
+		die();
+	}
+
+	/**
+	 * Validate instagram username / ajax callback
+	 */
+	public function validate_instagram_username() {
+		$username = isset($_POST['username']) && $_POST['username'] != '' ? $_POST['username'] : false;
+		die();
+	}
+
+	/**
 	 * Override WP Media
 	 */
 	public function wp_media_override() {
-		
 		add_action( 'admin_print_footer_scripts', array( $this, 'override_media_templates'), 11 );
 	}
 
@@ -125,11 +156,6 @@ class Smpi_Admin {
 		$username 	= $_POST['username'];
 		$has_next 	= $_POST['has_next'];
 		$max_id 	= $_POST['max_id'];
-		/*$username 	= strtolower($username);
-		$user 		= explode( ' ', $username );
-		if ( count($user) >= 2 ) {
-			$username = implode( '', $user );
-		}*/
 
 		require_once SMPI_LIB_DIR . 'InstagramMediaScraper/vendor/autoload.php';
 

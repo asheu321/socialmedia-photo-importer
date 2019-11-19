@@ -156,8 +156,11 @@ class Smpi {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );
 		$this->loader->add_action( 'wp_enqueue_media', $plugin_admin, 'wp_media_override' );
 		$this->loader->add_action( 'wp_ajax_instagram_submit_form', $plugin_admin, 'instagram_submit_form' );
+		$this->loader->add_action( 'wp_ajax_save_instagram_username', $plugin_admin, 'save_instagram_username' );
+		$this->loader->add_action( 'wp_ajax_validate_instagram_username', $plugin_admin, 'validate_instagram_username' );
 
 		// This hooks is just for debuging & testing purpose, we will delete it later
 		//$this->loader->add_action( 'admin_init', $plugin_admin, 'test_admin' );
