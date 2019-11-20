@@ -23,11 +23,25 @@ use InstagramScraper\Exception\InstagramNotFoundException;
 $instagram = new \InstagramScraper\Instagram();
 
 try {
-    $medias = $instagram->getMedias('Kholid Basalamah');
-
-    foreach ( $medias['medias'] as $media ) {
-        echo '<img style="max-width:150px;"  src="' . $media->getImageThumbnailUrl() . '">';
-    }
+    $account = $instagram->getAccount('priyanto.agus393');
+    // Available fields
+    echo "Account info:<br/>";
+    echo "Id: {$account->getId()}<br/>";
+    echo "Username: {$account->getUsername()}<br/>";
+    echo "Full name: {$account->getFullName()}<br/>";
+    echo "Biography: {$account->getBiography()}<br/>";
+    echo "Profile picture url: {$account->getProfilePicUrl()}<br/>";
+    echo "External link: {$account->getExternalUrl()}<br/>";
+    echo "Number of published posts: {$account->getMediaCount()}<br/>";
+    echo "Number of followers: {$account->getFollowsCount()}<br/>";
+    echo "Number of follows: {$account->getFollowedByCount()}<br/>";
+    echo "Is private: {$account->isPrivate()}<br/>";
+    echo "Is verified: {$account->isVerified()}<br/>";
+    echo "Media: {count($account->getMedias())}<br/>";
+    echo '<pre>';
+    print_r($account);
+    echo '</pre>';
+    
 } catch (InstagramScraper\Exception\InstagramNotFoundException $e) {
     echo $e->getMessage();
 }

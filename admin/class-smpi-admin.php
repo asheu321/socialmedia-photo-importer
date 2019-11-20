@@ -72,7 +72,7 @@ class Smpi_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
+		
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/smpi-admin.css', array(), $this->version, 'all' );
 
 	}
@@ -95,10 +95,14 @@ class Smpi_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/smpi-admin.js', array( 'jquery' ), $this->version, false );
+		$screen = get_current_screen();
+		if ( is_object($screen) && $screen->id == 'settings_page_smpi_settings' ) {
+			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/smpi-admin.js', array( 'jquery' ), $this->version, false );
+		}
+		
 		wp_localize_script( $this->plugin_name, 'SMPIAdminJs', array(
-			'ajaxUrl' => admin_url('admin-ajax.php')
+			'ajaxUrl' => admin_url('admin-ajax.php'),
+			'current_screen' => get_current_screen()
 		));
 
 	}
@@ -118,20 +122,64 @@ class Smpi_Admin {
 	}
 
 	/**
-	 * Save instagram username / Ajax Callback
+	 * Check instagram data
 	 */
-	public function save_instagram_username() {
-		parse_str( $_POST['data'], $var );
-		$username = isset($var['instagram-username']) && $var['instagram-username'] != '' ? $var['instagram-username'] : false;
+	public function check_instagram_data() {
+		$instadata = get_option( 'smpi_instagram_account' );
 
+		$data = '';
+		if ( $instadata != '' && is_array($instadata) ) {
+			$data = json_encode(array('data' => $instadata));
+			echo $data;
+			die();
+		}
+
+		echo json_encode(array('data' => ''));
 		die();
 	}
 
 	/**
-	 * Validate instagram username / ajax callback
+	 * Save instagram username / Ajax Callback
 	 */
-	public function validate_instagram_username() {
+	public function save_instagram_username() {
+		require_once SMPI_LIB_DIR . 'InstagramMediaScraper/vendor/autoload.php';
+
+		require_once SMPI_LIB_DIR . 'InstagramMediaScraper/InstagramScraper.php';
+
 		$username = isset($_POST['username']) && $_POST['username'] != '' ? $_POST['username'] : false;
+
+		if ( !$username ) {
+			echo json_encode( ['status' => '404', 'message' => 'Please enter your Instagram username', 'data' => []] );
+			exit;
+		}
+
+		$instagram = new \InstagramScraper\Instagram();
+
+		try {
+			$account = $instagram->getAccount($username);
+
+			$saved_account = array(
+				'ID' => $account->getId(),
+				'username' => $account->getUsername(),
+				'full_name' => $account->getFullName(),
+				'profile_picture' => $account->getProfilePicUrl(),
+				'media_count' => $account->getMediaCount()
+			);
+
+			$not_found = false;
+			
+			update_option( 'smpi_instagram_account', $saved_account );
+			
+		} catch (InstagramScraper\Exception\InstagramNotFoundException $e) {
+			$not_found = $e->getMessage();
+		}
+
+		if ( $not_found ) {
+			echo json_encode( ['status' => '404', 'message' => $not_found, 'data' => []] );
+			exit;
+		}
+
+		echo json_encode( ['status' => '200', 'message' => null, 'data' => $saved_account] );
 		die();
 	}
 
@@ -150,7 +198,7 @@ class Smpi_Admin {
 	}
 
 	/**
-	 * Instagran: Ajax submit form callback
+	 * Instagram featch media: Ajax submit form callback
 	 */
 	public function instagram_submit_form() {
 		$username 	= $_POST['username'];
@@ -198,6 +246,15 @@ class Smpi_Admin {
 		
 		echo json_encode( array( 'status' => 'success', 'message' => 'All good!', 'username' => $username, 'count' => count($images), 'images' => $images, 'has_next' => $has_next, 'max_id' => $max_id ) );
 		exit;
+	}
+
+	/**
+	 * Delete instagram data / AJAX
+	 */
+	public function delete_instagram_data() {
+		update_option( 'smpi_instagram_account', '' );
+		echo json_encode(array('message' => 'Instagram account deleted sucessfully.'));
+		die();
 	}
 
 	/**
