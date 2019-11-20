@@ -25,16 +25,18 @@ span.smpi-small-loading {
     background-repeat: no-repeat;
     background-position: center;
 }
+.smpi-media-content .media-item {
+    box-sizing: border-box;
+    display: flex;
+    padding: 5px;
+    border: 1px solid #eee;
+    margin: 5px;
+    float: left;
+    cursor: pointer;
+}
 </style>
 
 <script type="text/html" id="tmpl-instagram">
-    <div class="smpi-media-header">
-        <form id="req-instagram">
-            <input type="text" name="instagram-username" placeholder="Type instagram username here">
-            <input type="submit" value="Search" class="button-primary">
-            <span class="smpi-small-loading"></span>
-        </form>
-    </div>
     <div class="smpi-media-content"></div>
 </script>
 

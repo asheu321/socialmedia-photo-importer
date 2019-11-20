@@ -23,35 +23,27 @@ use InstagramScraper\Exception\InstagramNotFoundException;
 $instagram = new \InstagramScraper\Instagram();
 
 try {
-    $account = $instagram->getAccount('priyanto.agus393');
-    // Available fields
-    echo "Account info:<br/>";
-    echo "Id: {$account->getId()}<br/>";
-    echo "Username: {$account->getUsername()}<br/>";
-    echo "Full name: {$account->getFullName()}<br/>";
-    echo "Biography: {$account->getBiography()}<br/>";
-    echo "Profile picture url: {$account->getProfilePicUrl()}<br/>";
-    echo "External link: {$account->getExternalUrl()}<br/>";
-    echo "Number of published posts: {$account->getMediaCount()}<br/>";
-    echo "Number of followers: {$account->getFollowsCount()}<br/>";
-    echo "Number of follows: {$account->getFollowedByCount()}<br/>";
-    echo "Is private: {$account->isPrivate()}<br/>";
-    echo "Is verified: {$account->isVerified()}<br/>";
-    echo "Media: {count($account->getMedias())}<br/>";
-    echo '<pre>';
-    print_r($account);
-    echo '</pre>';
-    
+    $medias = $instagram->getPaginateMedias('nike');
+
+    foreach ( $medias['medias'] as $media ) {
+        echo '<img style="max-width:150px;"  src="' . $media->getImageThumbnailUrl() . '">';
+    }
 } catch (InstagramScraper\Exception\InstagramNotFoundException $e) {
     echo $e->getMessage();
 }
 
-/*echo "HasNextPage: {$medias['hasNextPage']}" . PHP_EOL;
+echo "HasNextPage: {$medias['hasNextPage']}" . PHP_EOL;
 echo "MaxId: {$medias['maxId']}" . PHP_EOL;
 
 if ($medias['hasNextPage'] === true) {
-    $result = $instagram->getPaginateMedias('kevin', $medias['maxId']);
-    foreach ( $result['medias'] as $result ) {
-        echo '<img style="max-width:150px;"  src="' . $result->getImageThumbnailUrl() . '">';
+    $result = $instagram->getPaginateMedias('nike', 'QVFCbjEtV1hYa0REU0VtS3g0QjlIck12T0I3LVY1TEE0QzAybVVpdnlzS1BPNm0xTmZyODBCazRTam5oeHRka2FpZDRsakJJNGhMNWk0bXJGS3Y4WjgxMw==');
+    foreach ( $result['medias'] as $res ) {
+        echo '<img style="max-width:150px;"  src="' . $res->getImageThumbnailUrl() . '">';
     }
-}*/
+echo "HasNextPage:" . $result['hasNextPage'];
+echo "MaxId:" . $result['maxId'];
+echo '<pre>';
+print_r($result);
+echo '</pre>';
+}
+

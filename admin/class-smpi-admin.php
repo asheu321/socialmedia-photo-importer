@@ -95,11 +95,9 @@ class Smpi_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-		$screen = get_current_screen();
-		if ( is_object($screen) && $screen->id == 'settings_page_smpi_settings' ) {
-			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/smpi-admin.js', array( 'jquery' ), $this->version, false );
-		}
 		
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/smpi-admin.js', array( 'jquery' ), $this->version, false );
+	
 		wp_localize_script( $this->plugin_name, 'SMPIAdminJs', array(
 			'ajaxUrl' => admin_url('admin-ajax.php'),
 			'current_screen' => get_current_screen()
@@ -199,19 +197,28 @@ class Smpi_Admin {
 
 	/**
 	 * Instagram featch media: Ajax submit form callback
+	 * TODO: Currently it's fetch data everytime we open media uploader / instagram tab,
+	 * Next time we need to cache the data so that we can get the data faster without 
+	 * having to make an API request everytime.
 	 */
-	public function instagram_submit_form() {
-		$username 	= $_POST['username'];
-		$has_next 	= $_POST['has_next'];
-		$max_id 	= $_POST['max_id'];
+	public function instagram_get_media() {
+		
+		$userdata = get_option( 'smpi_instagram_account' );
+
+		if ( !$userdata || $userdata == '' ) {
+			echo json_encode(array('status' => '404', 'message' => 'Please enter your Instagram username <a href="'.admin_url('options-general.php?page=smpi_settings').'">here</a>.'));
+			die();
+		}
+
+		$username = $userdata['username'];
 
 		require_once SMPI_LIB_DIR . 'InstagramMediaScraper/vendor/autoload.php';
 
 		require_once SMPI_LIB_DIR . 'InstagramMediaScraper/InstagramScraper.php';
 
 		$instagram = new \InstagramScraper\Instagram();
-
-		if ($has_next == 'true') {
+		$has_next = false;
+		if ($has_next) {
 
 			try {
 				$medias = $instagram->getPaginateMedias($username, $max_id);
@@ -243,8 +250,16 @@ class Smpi_Admin {
 
 		$has_next = $medias['hasNextPage'];
 		$max_id = $medias['maxId'];
-		
-		echo json_encode( array( 'status' => 'success', 'message' => 'All good!', 'username' => $username, 'count' => count($images), 'images' => $images, 'has_next' => $has_next, 'max_id' => $max_id ) );
+		$data_result = array( 
+			'status' => 'success', 
+			'message' => 'All good!', 
+			'username' => $username, 
+			'count' => count($images), 
+			'images' => $images, 
+			'has_next' => $has_next, 
+			'max_id' => $max_id 
+		);
+		echo json_encode( $data_result );
 		exit;
 	}
 

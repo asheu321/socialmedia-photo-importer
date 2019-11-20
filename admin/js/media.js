@@ -9,6 +9,35 @@ InstagramBrowser = wp.media.View.extend({
     className: 'instagram-browser',
     render: function() {
         jQuery(this.el).html(wp.template('instagram'));
+
+        jQuery.ajax({
+            type: "post",
+            url: SMPIAdminJs.ajaxUrl,
+            data: {
+                action: 'instagram_get_media',
+                max_id: false
+            },
+            dataType: "json",
+            success: function (response) {
+
+                if ( response.status == 'success' ) {
+                    if ( response.count !== 0 ) {
+                        jQuery.each(response.images, function (i, a) { 
+                            jQuery('.smpi-media-content').append('<div class="media-item"><img style="max-width:150px" src="'+a+'"></div>');
+                        });
+                        if ( response.has_next ) {
+                            jQuery('.smpi-media-content').append('<div class="smpi-load-more" style="text-align:center;"><span class="button-primary">Load more</span></div>');
+                        }
+                    } else {
+                        jQuery('.smpi-media-content').html('No images found for <strong>' + response.username + '</strong> account.');
+                    }
+                } else {
+                    jQuery('.smpi-media-content').html(response.message);
+                }
+                
+            }
+        });
+
         return this;
     },
     events: {
