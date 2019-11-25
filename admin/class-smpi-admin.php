@@ -100,7 +100,19 @@ class Smpi_Admin {
 	
 		wp_localize_script( $this->plugin_name, 'SMPIAdminJs', array(
 			'ajaxUrl' => admin_url('admin-ajax.php'),
-			'current_screen' => get_current_screen()
+			'current_screen' => get_current_screen(),
+			'l10n' => array(
+				'instagram' 					=> __('Instagram' , 'smpi' ),
+				'image' 						=> __('Image', 'smpi'),
+				'copy_paste' 					=> __('Copy & Paste' , 'smpi'),
+				'instagram_record' 				=> __('Record' , 'smpi' ),
+			),
+			'options' => array(
+				'mime_types'					=> array(
+					'image/jpeg'	=> 'jpg',
+					'image/png'		=> 'png',
+				),
+			),
 		));
 
 	}
@@ -277,6 +289,41 @@ class Smpi_Admin {
 	 */
 	public function test_admin() {
 		include 'partials/smpi-admin-display.php';
+		exit;
+	}
+
+	/**
+	 * Import
+	 */
+	public function smpi_upload_process() {
+		$url = $_POST['url'];
+		$attach_id = media_sideload_image( $url, 0, null, 'id' );
+		/*$response = wp_remote_get($url, array( 'timeout' => 120 ) );
+		if( is_wp_error( $response ) ){ exit; }
+			
+		$bits = wp_remote_retrieve_body( $response );
+		$content_type = wp_remote_retrieve_header( $response, 'content-type' );
+		if ( $content_type == 'image/jpeg' ) {
+			$ext = '.jpg';
+		} else {
+			$ext = '.png';
+		}
+		$filename = strtotime("now").'_'.uniqid().$ext;
+		
+		$last_modified = wp_remote_retrieve_header( $response, 'last-modified' );
+		$upload = array(
+			'filename' => $filename,
+			'file' => $bits,
+			'content_type' => $content_type,
+			'last_modified' => $last_modified
+		);
+		$upload = wp_upload_bits( $filename, null, $bits );
+		$data['guid'] = $upload['url'];
+		$data['post_mime_type'] = $upload['type'];
+		$attach_id = wp_insert_attachment( $data, $upload['file'], 0 );
+		$upload['attach_id'] = $attach_id;*/
+
+		echo json_encode(array('id' => $attach_id));
 		exit;
 	}
 

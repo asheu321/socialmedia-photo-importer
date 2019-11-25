@@ -163,6 +163,7 @@ class Smpi {
 		$this->loader->add_action( 'wp_ajax_validate_instagram_username', $plugin_admin, 'validate_instagram_username' );
 		$this->loader->add_action( 'wp_ajax_check_instagram_data', $plugin_admin, 'check_instagram_data' );
 		$this->loader->add_action( 'wp_ajax_delete_instagram_data', $plugin_admin, 'delete_instagram_data' );
+		$this->loader->add_action( 'wp_ajax_smpi_upload_process', $plugin_admin, 'smpi_upload_process' );
 		// This hooks is just for debuging & testing purpose, we will delete it later
 		//$this->loader->add_action( 'admin_init', $plugin_admin, 'test_admin' );
 

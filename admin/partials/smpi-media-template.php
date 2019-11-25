@@ -25,6 +25,11 @@ span.smpi-small-loading {
     background-repeat: no-repeat;
     background-position: center;
 }
+.smpi-media-content {
+    display: inline-block;
+    width: 100%;
+    min-height: 100%;
+}
 .smpi-media-content .media-item {
     box-sizing: border-box;
     display: flex;
@@ -32,7 +37,33 @@ span.smpi-small-loading {
     border: 1px solid #eee;
     margin: 5px;
     float: left;
-    cursor: pointer;
+    position: relative;
+}
+span.media-import-button {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    width: 70px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 20px !important;
+    visibility: hidden;
+}
+.smpi-media-content .media-item:hover > span.media-import-button {
+    visibility: visible;
+}
+.instagram-browser {
+    padding: 10px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: auto;
+}
+.media-frame.loading .smpi-media-content {
+    background-image: url(<?php echo SMPI_PLUGIN_URL; ?>/admin/img/ajax-loading.gif);
+    background-repeat: no-repeat;
+    background-position: center;
 }
 </style>
 

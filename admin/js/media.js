@@ -1,12 +1,57 @@
 var Select = wp.media.view.MediaFrame.Select,
 Library = wp.media.controller.Library,
-l10n = wp.media.view.l10n,
+l10n = SMPIAdminJs.l10n,
 Post, 
 InstagramBrowser;
 
-InstagramBrowser = wp.media.View.extend({
+(function($,exports){
+
+	var is_chrome	= navigator.userAgent.indexOf('Chrome') > -1
+		
+	exports.SMPIAdminJs = $.extend( {
+		supports : {},
+		view:{},
+		wpUloader : false,
+		getWpUploader: function( ){ 
+			return SMPIAdminJs.wpUploader; 
+		}
+ 
+	}, SMPIAdminJs );
+
+//	cheese = cheese; 
+
+})( jQuery, wp.media );
+
+
+jQuery.extend( wp.Uploader.prototype, {
+    success : function( file_attachment ){
+    }
+});
+
+function blobToFile(theBlob, fileName){
+    //A Blob() is almost a File() - it's just missing the two properties below which we will add
+    theBlob.lastModifiedDate = new Date();
+    theBlob.name = fileName;
+    return theBlob;
+}
+
+(function($,window,o){
+	var Button = wp.media.view.Button,Modal  = wp.media.view.Modal;
+
+    
+/**
+ *	Integrate into media library modal
+ */
+_parentFrameInitialize = wp.media.view.MediaFrame.Select.prototype.initialize
+
+wp.media.view.InstagramBrowser = wp.media.View.extend({
     tagName:   'div',
     className: 'instagram-browser',
+    image: null,
+    self: null,
+    initialize: function() {
+        this.self = this;
+    },
     render: function() {
         jQuery(this.el).html(wp.template('instagram'));
 
@@ -19,11 +64,12 @@ InstagramBrowser = wp.media.View.extend({
             },
             dataType: "json",
             success: function (response) {
-
+                jQuery('.media-frame').removeClass('loading');
+                jQuery('.smpi-media-content').html('');
                 if ( response.status == 'success' ) {
                     if ( response.count !== 0 ) {
                         jQuery.each(response.images, function (i, a) { 
-                            jQuery('.smpi-media-content').append('<div class="media-item"><img style="max-width:150px" src="'+a+'"></div>');
+                            jQuery('.smpi-media-content').append('<div class="media-item"><img style="max-width:150px" src="'+a+'"><span class="media-import-button button-primary" data-url="'+a+'">Import</span></div>');
                         });
                         if ( response.has_next ) {
                             jQuery('.smpi-media-content').append('<div class="smpi-load-more" style="text-align:center;"><span class="button-primary">Load more</span></div>');
@@ -41,88 +87,68 @@ InstagramBrowser = wp.media.View.extend({
         return this;
     },
     events: {
-        "submit #req-instagram":"SubmitForm"
+        "click .media-import-button":"selectMedia"
     },
-    SubmitForm: function(event) {
-        event.preventDefault();
-        jQuery('.smpi-small-loading').fadeIn();
-
+    selectMedia: function(event) {
+        var Url = jQuery(event.currentTarget).data('url');
+        var self = this;
         jQuery.ajax({
             type: "post",
             url: SMPIAdminJs.ajaxUrl,
             data: {
-                action: 'instagram_submit_form',
-                username: jQuery('#req-instagram input[type="text"]').val(),
-                has_next: false,
-                max_id: false
+                action: 'smpi_upload_process',
+                url: Url
             },
             dataType: "json",
             success: function (response) {
-                jQuery('.smpi-small-loading').fadeOut();
-                jQuery('.smpi-media-content').html('');
-                var status = response.status;
-                var message = response.message;
-                var images = response.images;
-                if ( status == 'success' ) {
-                    if ( response.count !== 0 ) {
-                        jQuery.each(response.images, function (i, a) { 
-                            jQuery('.smpi-media-content').append('<img style="max-width:150px" src="'+a+'">');
-                        });
-                    } else {
-                        jQuery('.smpi-media-content').html('No images found for <strong>' + response.username + '</strong> account.');
-                    }
-                } else {
-                    jQuery('.smpi-media-content').html(response.message);
-                }
-                
+                self.trigger('action:uploaded:image', {id:response.id});
             }
         });
-    }
-});
 
-wp.media.view.MediaFrame.Select = wp.media.view.MediaFrame.Select.extend({
-    /**
-     * Bind region mode event callbacks.
-     *
-     * @see media.controller.Region.render
-     */
-    bindHandlers: function() {
-        this.on( 'router:create:browse', this.createRouter, this );
-        this.on( 'router:render:browse', this.browseRouter, this );
-        this.on( 'content:create:browse', this.browseContent, this );
-        this.on( 'content:render:upload', this.uploadContent, this );
-        this.on( 'toolbar:create:select', this.createSelectToolbar, this );
-        this.on( 'content:render:edit-image', this.editImageContent, this );
-        this.on( 'content:create:instagram', this.instagramContent, this );
-    },
-    /**
-     * Render callback for the router region in the `browse` mode.
-     *
-     * @param {wp.media.view.Router} routerView
-     */
-    browseRouter: function( routerView ) {
-        //"use strict";
-        routerView.set({
-            upload: {
-                text:     l10n.uploadFilesTitle,
-                priority: 20
-            },
-            browse: {
-                text:     l10n.mediaLibraryTitle,
-                priority: 40
-            },
-            instagram: {
-                text:     "Instagram",
-                priority: 50
-            }
-        });
-    },
-    instagramContent: function( contentRegion ) {
-
-        this.$el.removeClass( 'hide-toolbar' );
-        this.content.set(new InstagramBrowser());
-        
     }
     
 });
 
+wp.media.view.MediaFrame.Select = Select.extend({
+    _parentInitialize: wp.media.view.MediaFrame.Select.prototype.initialize,
+    initialize: function() {
+        _parentFrameInitialize.apply( this, arguments );
+        this.bindSMPIHandlers();
+    },
+    bindSMPIHandlers: function() {
+        this.on( 'content:create:instagram', this.instagramContent, this );
+        this.on( 'content:render:instagram', this.renderInstagramContent, this );
+        //this.on( 'action:uploaded:dataimage', this.imageUploaded, this );
+        frame = this;
+    },
+    _parentBrowseRouter: wp.media.view.MediaFrame.Select.prototype.browseRouter,
+    browseRouter: function( routerView ) {
+        this._parentBrowseRouter.apply(this,arguments);
+        routerView.set({instagram:{
+            text:     l10n.instagram,
+            priority: 50
+        }});
+    },
+    instagramContent: function( contentRegion ) {
+        var state = this.state();
+        this.$el.removeClass( 'hide-toolbar' );
+        this.$el.addClass('loading');
+        this.currentSMPIView = contentRegion.view = new wp.media.view.InstagramBrowser({
+            controller: this
+        });
+        this.listenTo( this.currentSMPIView, 'action:uploaded:image', this.imageUploaded );
+    },
+    imageUploaded: function( content ) {
+        var ituh = this;
+        console.log(this);
+        var selection = wp.media.frame.state().get('selection');
+        
+        attachment = wp.media.attachment(content.id);
+        attachment.fetch();
+        selection.add(attachment ? [attachment] : []);
+        jQuery('.media-router #menu-item-browse').trigger('click');
+        
+    }
+});
+
+})(jQuery,window,mOxie);
